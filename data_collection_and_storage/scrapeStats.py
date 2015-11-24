@@ -14,7 +14,7 @@ def main():
 	listOfTeamInitials = getListOfTeamInitials()
 	listOfGameStatUrls = generateGameStatUrls(baseUrl, listOfTeamInitials)
 
-	for gameStatUrl in listOfGameStatUrls[0:1]:
+	for gameStatUrl in listOfGameStatUrls:
 		gameStatRows = getGameStatRowsFromTable(gameStatUrl)
 		formattedGameStatRows = formatRowsAsLists(gameStatRows)
 
