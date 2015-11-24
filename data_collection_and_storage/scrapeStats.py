@@ -12,22 +12,73 @@ def main():
 	baseUrl = "http://www.basketball-reference.com/teams/"
 
 	listOfTeamInitials = getListOfTeamInitials()
-	listOfUrls = generateUrls(baseUrl, listOfTeamInitials)
+	listOfGameStatUrls = generateGameStatUrls(baseUrl, listOfTeamInitials)
 
-	for url in listOfUrls[0:1]:
-		gameRows = getGameRowsFromTable(url)
-		formattedGameRows = formatRowsAsLists(gameRows)
+	for gameStatUrl in listOfGameStatUrls[0:1]:
+		gameStatRows = getGameStatRowsFromTable(gameStatUrl)
+		formattedGameStatRows = formatRowsAsLists(gameStatRows)
 
-		#formattedGameRows = []
-		#addGamblingInfoToEachRow(url, formattedGameRows)
+		# Get all gambling results and spreads for each game
+		# gamblingInfoRows is a list (length 82) of the following format: result against the spread, the line (e.g. [(W, -5), (L, 2), etc.]
+		gamblingInfoRows = getGamblingInfo(gameStatUrl)
+		completeRows = addGamblingInfoToEachRow(gamblingInfoRows, formattedGameStatRows)
+
+		# Get rid of the stats we don't want (e.g. any percentage stat), remove None values, and rename the home/away stat
+		polishedRows = filterAndCleanRows(completeRows)
+
+		saveAsTextFile(gameStatUrl, polishedRows)
 
 
-		saveAsTextFile(url, formattedGameRows)
-		
+def filterAndCleanRows(completeRows):
 
-def addGamblingInfoToEachRow(url, formattedGameRows):
+	# When counter == 0: we are removing a redundant game number (the first 2 columns are identical)
+	# When counter == 10, 13, or 16: we are removing the team's percentage stats (e.g. FG%, FT%, etc)
+	# When counter == 24: we are removing a column of all None (the reason it is there is so the table looks nice)
+	# When counter == 27, 30, or 33: we are removing the oppentents's percentage stats (e.g. FG%, FT%, etc)
 
-	teamInitial = getTeamInitial(url)
+	irrelevantStatIndexes = [0, 10, 13, 16, 24, 27, 30, 33] 
+
+	polishedRows = []
+	for row in completeRows:
+		polishedRow = []
+		counter = 0
+		for stat in row:
+			
+			# Format home and away (stat will equal either @ or None)
+			if counter == 3:
+				if stat == "@":
+					stat = "Away"
+				else:
+					stat = "Home"
+
+			# Add all relevant stats to the polished row
+			if counter not in irrelevantStatIndexes:
+				polishedRow.append(stat)
+
+			counter += 1
+
+		polishedRows.append(polishedRow)
+
+	return polishedRows
+
+
+def addGamblingInfoToEachRow(gamblingInfoRows, formattedGameStatRows):
+
+	completeRows = []
+	counter = 0
+	for statRow in formattedGameStatRows:
+		statRow.append(gamblingInfoRows[counter][0])
+		statRow.append(gamblingInfoRows[counter][1])
+
+		completeRows.append(statRow)
+		counter += 1
+
+	return completeRows
+
+
+def getGamblingInfo(gameStatUrl):
+
+	teamInitial = getTeamInitial(gameStatUrl)
 	teamId = getTeamId(teamInitial)
  
 	gamblingUrl = "http://www.covers.com/pageLoader/pageLoader.aspx?page=/data/nba/teams/pastresults/" + GAMBLING_YEAR + "/team" + teamId + ".html"
@@ -37,7 +88,7 @@ def addGamblingInfoToEachRow(url, formattedGameRows):
 	gamblingTable = soup.findAll('table', attrs={'class' : 'data'})
 	
 	
-	if len(gamblingTable) == 2: #made the playoffs, so 2 tables are on the page (the first of which is the playoff table)
+	if len(gamblingTable) == 2: # made the playoffs, so 2 tables are on the page (the first of which is the playoff table)
 		gamblingStatTable = gamblingTable[1]
 	else:
 		gamblingStatTable = gamblingTable[0]
@@ -53,13 +104,17 @@ def addGamblingInfoToEachRow(url, formattedGameRows):
 		resultList.append(resultAndSpread[0])
 		spreadList.append(resultAndSpread[1])
 	
-	# Reverse because the table starts at game 82
+	# Reverse because the table starts at game 82, we want it to start at game 1
 	resultList.reverse()
 	spreadList.reverse()
-	print resultList
-	print spreadList
 
-	
+	gamblingInfoList = []
+	for i in range(len(resultList) -1):  # subtracting 1 to remove table header from gamblingInfoList
+		gameInfo = (resultList[i], spreadList[i])
+		gamblingInfoList.append(gameInfo)
+
+	return gamblingInfoList
+
 
 def getTeamId(teamInitial):
 
@@ -104,10 +159,10 @@ def saveAsTextFile(url, formattedGameRows):
 	f.close()
 
 
-def formatRowsAsLists(gameRows):
+def formatRowsAsLists(rows):
 
 	allRows = []
-	for row in gameRows:
+	for row in rows:
 		formattedRow = []
 		cells = row.findChildren('td')
 		if len(cells) == 0:
@@ -122,15 +177,27 @@ def formatRowsAsLists(gameRows):
 	return allRows
 
 
-def getGameRowsFromTable(url):
+def getGameStatRowsFromTable(gameStatUrl):
 	
-	html = urllib2.urlopen(url)
+	html = urllib2.urlopen(gameStatUrl)
 	soup = BeautifulSoup(html)
 
 	statTable = soup.findAll('table', attrs={'id' : 'tgl_basic'})
 	statTable = statTable[0]
 	rows = statTable.findChildren(['tr'])
+
 	return rows
+
+
+# Example url: http://www.basketball-reference.com/teams/WAS/2015/gamelog/
+def generateGameStatUrls(baseUrl, listOfTeamInitials):
+
+	urlList = []
+	for teamInitial in listOfTeamInitials:
+		url = baseUrl + teamInitial + "/" + str(YEAR) + "/gamelog"
+		urlList.append(url)
+
+	return urlList
 
 
 # Note 1: Charlotte is CHA when year <= 2014, and CHO otherwise
@@ -155,17 +222,5 @@ def getListOfTeamInitials():
 	return listOfTeamInitials
 
 
-# Example url: http://www.basketball-reference.com/teams/WAS/2015/gamelog/
-def generateUrls(baseUrl, listOfTeamInitials):
-
-	urlList = []
-	for teamInitial in listOfTeamInitials:
-		url = baseUrl + teamInitial + "/"
-		url += str(YEAR) + "/gamelog"
-		urlList.append(url)
-
-	return urlList
-
 main()
-
 
