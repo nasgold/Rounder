@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, NavigableString
 YEAR = 2015
 GAMBLING_YEAR = str(YEAR-1) + "-" + str(YEAR)
 
+
 def main():
 
 	baseUrl = "http://www.basketball-reference.com/teams/"
@@ -14,19 +15,46 @@ def main():
 	listOfTeamInitials = getListOfTeamInitials()
 	listOfGameStatUrls = generateGameStatUrls(baseUrl, listOfTeamInitials)
 
-	for gameStatUrl in listOfGameStatUrls:
+	for gameStatUrl in listOfGameStatUrls[0:1]:
 		gameStatRows = getGameStatRowsFromTable(gameStatUrl)
 		formattedGameStatRows = formatRowsAsLists(gameStatRows)
 
-		# Get all gambling results and spreads for each game
-		# gamblingInfoRows is a list (length 82) of the following format: result against the spread, the line (e.g. [(W, -5), (L, 2), etc.]
+		# GamblingInfoRows is a list (length 82) of the following format:
+		# result against the spread, the line, result against the over/under, and the over/under line (e.g. [(W, -5, U, 205), etc...]
 		gamblingInfoRows = getGamblingInfo(gameStatUrl)
-		completeRows = addGamblingInfoToEachRow(gamblingInfoRows, formattedGameStatRows)
+		statAndGamblingRows = addGamblingInfoToEachRow(gamblingInfoRows, formattedGameStatRows)
+
+		# Add whether the team is played the previous day (0 if they didn't, 1 if they did)
+		completeRows = addWhetherTeamPlayedOnThePreviousDay(statAndGamblingRows)
 
 		# Get rid of the stats we don't want (e.g. any percentage stat), remove None values, and rename the home/away stat
 		polishedRows = filterAndCleanRows(completeRows)
 
 		saveAsTextFile(gameStatUrl, polishedRows)
+
+def addWhetherTeamPlayedOnThePreviousDay(statAndGamblingRows):
+
+	statAndGamblingRows[0].append(0) # did not play the previous day, so adding a 0 here.
+
+	firstGamePlayed = statAndGamblingRows[0][2]
+	dateOfPreviousGame = datetime.datetime.strptime(firstGamePlayed,"%Y-%m-%d")
+
+	completeRows = []
+	for row in statAndGamblingRows[1:]: # starting at the second game (already added a 0 for the first game)
+		dateOfGame = datetime.datetime.strptime(row[2],"%Y-%m-%d")
+		dayBeforeGame = dateOfGame - datetime.timedelta(days=1)
+
+		# Add a 1 or 0 to the row
+		if dayBeforeGame == dateOfPreviousGame:
+			row.append(1)
+		else:
+			row.append(0)
+
+		dateOfPreviousGame = dateOfGame
+		completeRows.append(row)
+
+
+	return completeRows
 
 
 def filterAndCleanRows(completeRows):
@@ -67,8 +95,9 @@ def addGamblingInfoToEachRow(gamblingInfoRows, formattedGameStatRows):
 	completeRows = []
 	counter = 0
 	for statRow in formattedGameStatRows:
-		statRow.append(gamblingInfoRows[counter][0])
-		statRow.append(gamblingInfoRows[counter][1])
+		relatedGamblingRow = gamblingInfoRows[counter]
+		for gamblingStat in relatedGamblingRow:
+			statRow.append(gamblingStat)
 
 		completeRows.append(statRow)
 		counter += 1
@@ -96,21 +125,35 @@ def getGamblingInfo(gameStatUrl):
 	rows = gamblingStatTable.findChildren(['tr'])
 	rows = formatRowsAsLists(rows)
 
-	resultList = []
-	spreadList = []
-	for row in rows:
-		resultAndSpread = row[4].strip('\r\n        ')
-		resultAndSpread = resultAndSpread.split(" ")
-		resultList.append(resultAndSpread[0])
-		spreadList.append(resultAndSpread[1])
+	spreadResultList = []
+	pointSpreadList = []
+
+	overUnderResultList = []
+	overUnderLineList = []
+	for row in rows[1:]: #first row is the header of the table, so we can skip it
+
+		#Get info associated with the spread
+		speadInfo = row[4].strip('\r\n        ')
+		speadInfo = speadInfo.split(" ")
+		spreadResultList.append(speadInfo[0])
+		pointSpreadList.append(speadInfo[1])
+
+		#Get info associated with the over/under
+		overUnderInfo = row[5].strip('\r\n        ')
+		overUnderInfo = overUnderInfo.split(" ")
+		overUnderResultList.append(overUnderInfo[0])
+		overUnderLineList.append(overUnderInfo[1])
+
 	
-	# Reverse because the table starts at game 82, we want it to start at game 1
-	resultList.reverse()
-	spreadList.reverse()
+	# Reverse because the table starts at game 82, but we want it to start at game 1
+	spreadResultList.reverse()
+	pointSpreadList.reverse()
+	overUnderResultList.reverse()
+	overUnderLineList.reverse()
 
 	gamblingInfoList = []
-	for i in range(len(resultList) -1):  # subtracting 1 to remove table header from gamblingInfoList
-		gameInfo = (resultList[i], spreadList[i])
+	for i in range(len(spreadResultList)):
+		gameInfo = (spreadResultList[i], pointSpreadList[i], overUnderResultList[i], overUnderLineList[i])
 		gamblingInfoList.append(gameInfo)
 
 	return gamblingInfoList
