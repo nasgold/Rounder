@@ -30,16 +30,19 @@ def main():
 		# Get rid of the stats we don't want (e.g. any percentage stat), remove None values, and rename the home/away stat
 		polishedRows = filterAndCleanRows(completeRows)
 
+		print polishedRows[0]
+		print len(polishedRows[0])
 		saveAsTextFile(gameStatUrl, polishedRows)
 
 def addWhetherTeamPlayedOnThePreviousDay(statAndGamblingRows):
 
 	statAndGamblingRows[0].append(0) # did not play the previous day, so adding a 0 here.
+	completeRows = []
+	completeRows.append(statAndGamblingRows[0])
 
 	firstGamePlayed = statAndGamblingRows[0][2]
 	dateOfPreviousGame = datetime.datetime.strptime(firstGamePlayed,"%Y-%m-%d")
 
-	completeRows = []
 	for row in statAndGamblingRows[1:]: # starting at the second game (already added a 0 for the first game)
 		dateOfGame = datetime.datetime.strptime(row[2],"%Y-%m-%d")
 		dayBeforeGame = dateOfGame - datetime.timedelta(days=1)
@@ -187,7 +190,7 @@ def getTeamInitial(url):
 def saveAsTextFile(url, formattedGameRows):
 
 	teamInitial = getTeamInitial(url)
-	fileName = str(YEAR) + "/" + teamInitial + ".txt"
+	fileName = "gameStatsAndInfo/" + str(YEAR) + "/" + teamInitial + ".txt"
 
 	f = open(fileName, 'w')
 	for row in formattedGameRows:

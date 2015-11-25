@@ -1,0 +1,38 @@
+Season Game Number
+Date Of Game
+Home Or Away
+Opponent
+Points
+Opponent Points
+Game Result
+Field Goals
+Field Goal Attempts
+3-Point Field Goals
+3-Point Field Goal Attempts
+Free Throws
+Free Throw Attempts
+Offensive Rebounds
+Total Rebounds
+Assists
+Steals
+Blocks
+Turnovers
+Personal Fouls
+Opponent Field Goals
+Opponent Field Goal Attempts
+Opponent 3-Point Field Goals
+Opponent 3-Point Field Goal Attempts
+Opponent Free Throws
+Opponent Free Throw Attempts
+Opponent Offensive Rebounds
+Opponent Total Rebounds
+Opponent Assists
+Opponent Steals
+Opponent Blocks
+Opponent Turnovers
+Opponent Personal Fouls
+Spread Result
+The Spread
+Over/Under Result
+The Over/Under line
+Did The Team Play Yesterday? (0 or 1)
