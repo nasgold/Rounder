@@ -15,7 +15,7 @@ def main():
 	listOfTeamInitials = getListOfTeamInitials()
 	listOfGameStatUrls = generateGameStatUrls(baseUrl, listOfTeamInitials)
 
-	for gameStatUrl in listOfGameStatUrls[0:1]:
+	for gameStatUrl in listOfGameStatUrls:
 		gameStatRows = getGameStatRowsFromTable(gameStatUrl)
 		formattedGameStatRows = formatRowsAsLists(gameStatRows)
 
@@ -30,8 +30,6 @@ def main():
 		# Get rid of the stats we don't want (e.g. any percentage stat), remove None values, and rename the home/away stat
 		polishedRows = filterAndCleanRows(completeRows)
 
-		print polishedRows[0]
-		print len(polishedRows[0])
 		saveAsTextFile(gameStatUrl, polishedRows)
 
 def addWhetherTeamPlayedOnThePreviousDay(statAndGamblingRows):
@@ -176,7 +174,7 @@ def getTeamId(teamInitial):
 			return lineId
 
 	f.close()
-	raise ValueError('Could not get team id. This should never happen.')
+	raise ValueError('Could not get team id for ' + teamInitial + '. This should never happen.')
 	return teamId
 
 
@@ -190,7 +188,7 @@ def getTeamInitial(url):
 def saveAsTextFile(url, formattedGameRows):
 
 	teamInitial = getTeamInitial(url)
-	fileName = "gameStatsAndInfo/" + str(YEAR) + "/" + teamInitial + ".txt"
+	fileName = "gameStatsAndInfo/" + str(YEAR) + "/" + teamInitial + "-" + str(YEAR) + ".txt"
 
 	f = open(fileName, 'w')
 	for row in formattedGameRows:
