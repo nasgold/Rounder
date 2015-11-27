@@ -32,6 +32,7 @@ def main():
 
 		saveAsTextFile(gameStatUrl, polishedRows)
 
+
 def addWhetherTeamPlayedOnThePreviousDay(statAndGamblingRows):
 
 	statAndGamblingRows[0].append(0) # did not play the previous day, so adding a 0 here.
@@ -69,6 +70,13 @@ def filterAndCleanRows(completeRows):
 
 	polishedRows = []
 	for row in completeRows:
+
+		# Calculate win or loss by directly comparing points (web scraper doesn't properly get wins and losses for overtime games).
+		if int(row[6]) > int(row[7]):
+			row[5] = "W"
+		else:
+			row[5] = "L"
+
 		polishedRow = []
 		counter = 0
 		for stat in row:
