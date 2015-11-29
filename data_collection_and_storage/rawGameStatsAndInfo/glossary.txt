@@ -2,9 +2,14 @@ Season Game Number
 Date Of Game
 Home Or Away
 Opponent
+Game Result (who actually won the game)
+Spread Result (who covered the spread)
+The Spread
+Over/Under Result
+The Over/Under line
+Did The Team Play Yesterday? (0 or 1)
 Points
 Opponent Points
-Game Result
 Field Goals
 Field Goal Attempts
 3-Point Field Goals
@@ -31,8 +36,3 @@ Opponent Steals
 Opponent Blocks
 Opponent Turnovers
 Opponent Personal Fouls
-Spread Result
-The Spread
-Over/Under Result
-The Over/Under line
-Did The Team Play Yesterday? (0 or 1)

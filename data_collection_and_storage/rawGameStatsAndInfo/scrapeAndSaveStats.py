@@ -4,7 +4,7 @@ import time
 import datetime
 from bs4 import BeautifulSoup, NavigableString
 
-YEAR = 2015
+YEAR = 2013
 GAMBLING_YEAR = str(YEAR-1) + "-" + str(YEAR)
 
 
@@ -30,7 +30,34 @@ def main():
 		# Get rid of the stats we don't want (e.g. any percentage stat), remove None values, and rename the home/away stat
 		polishedRows = filterAndCleanRows(completeRows)
 
-		saveAsTextFile(gameStatUrl, polishedRows)
+		# Rearrange the order the stats so that the info stats are first, followed by the regular game stats
+		finalRows = rearrangeOrderOfStats(polishedRows)
+
+		saveAsTextFile(gameStatUrl, finalRows)
+
+
+def rearrangeOrderOfStats(polishedRows):
+
+	finalRows = []
+	for row in polishedRows:
+		finalRow = []
+
+		# Append the first 5 stats (game number, date, home or away, opponent, result)
+		for stat in row[0:5]:
+			finalRow.append(stat)
+
+		# Append the gambling stats next (along with whether it's a back to back game)
+		for stat in row[33:]:
+			finalRow.append(stat)
+
+		# Append the rest of the stats (which are all the normal game stats (FGA, REB, etc..)
+		for stat in row[5:33]:
+			finalRow.append(stat)
+
+		finalRows.append(finalRow)
+
+
+	return finalRows
 
 
 def addWhetherTeamPlayedOnThePreviousDay(statAndGamblingRows):

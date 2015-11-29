@@ -1,31 +1,67 @@
+
 YEAR = 2015
 
 def main():
 
+	teamInitials = getListOfTeamInitials()
 
-	#Things to do:
-	#format stats in text file, such that all non-averaged stats come first
-	#maybe, let's put a blank stat in for the seperator
-	#thin about how these rows should look in the text file...
+	for teamInitial in teamInitials[0:1]: 
+
+		#Get the current teams raw stats from the text file generaged by scrapeAndSaveStats.py
+		rawStats = getRawStatsFromTextFile(teamInitial)
+
+		for numberOfGamesToGetAverageFor in range(1,21):
+			completeAveragedStats = calculateGameAverages(numberOfGamesToGetAverageFor, rawStats)
+			saveAveragedStats(teamInitial, numberOfGamesToGetAverageFor, completeAveragedStats)
 
 
-	# currently, only for atlanta, will need to do it for each team
-	rawStats = getRawStatsFromTextFile()
+def saveAveragedStats(team, numberOfGamesToGetAverageFor, completeAveragedStats):
 
-	for numberOfGamesToGetAverageFor in range(2,3):
-		calculateGameAverages(numberOfGamesToGetAverageFor, rawStats)
+	fileName = team + "-" + str(numberOfGamesToGetAverageFor) + "-GameAverage"
+	print fileName
+	return 
 
+	filePath
+	f = open(fileName, 'w')
+	for row in formattedGameRows:
+		formattedRow = ""
+		for stat in row:
+			formattedRow += str(stat) + ", "
+
+		formattedRow = formattedRow[:-2] + "\n"
+
+		f.write(formattedRow)
+
+	f.close()
 
 def calculateGameAverages(numberOfGamesToGetAverageFor, rawStats):
 
+	completeAveragedStats = []
 	for gameNumber in range(numberOfGamesToGetAverageFor, len(rawStats)):
 		currentRow = rawStats[gameNumber]
+		rowInfo = getRowInfo(currentRow)
+
 		pastRowsToGetAverageFor = getPastRowsToAverage(numberOfGamesToGetAverageFor, rawStats, gameNumber)
 
 		averagedPastStats = averagePastRows(pastRowsToGetAverageFor)
+		finalAverageRows = rowInfo + averagedPastStats
 
+		completeAveragedStats.append(finalAverageRows)
 
-		#safeAveragedStats
+	return completeAveragedStats
+
+def getRowInfo(currentRow):
+	# Row info are the stats we won't average (see getIndexesNotToGetTheAverageFor to these stats)
+
+	currentRow = currentRow.split(', ')
+
+	statIndexesNotToAverage = getIndexesNotToGetTheAverageFor()
+	infoStats = []
+	for index in range(len(currentRow)):
+		if index in statIndexesNotToAverage:
+			infoStats.append(currentRow[index])
+
+	return infoStats
 
 
 def averagePastRows(pastRowsToGetAverageFor):
@@ -74,13 +110,13 @@ def getIndexesNotToGetTheAverageFor():
 	# Not averaging index 2: home or away
 	# Not averaging index 3: opponent
 	# Not averaging index 4: result of the game
-	# Not averaging index 33: the spread result
-	# Not averaging index 34: the spread
-	# Not averaging index 35: over under result
-	# Not averaging index 36: over under line
-	# Not averaging index 37: was this game a back to back?
+	# Not averaging index 5: the spread result
+	# Not averaging index 6: the spread
+	# Not averaging index 7: over under result
+	# Not averaging index 8: over under line
+	# Not averaging index 9: was this game a back to back?
 
-	return [0, 1, 2, 3, 4, 33, 34, 35, 36, 37]
+	return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 def getPastRowsToAverage(numberOfGamesToGetAverageFor, rawStats, gameNumber):
@@ -91,9 +127,9 @@ def getPastRowsToAverage(numberOfGamesToGetAverageFor, rawStats, gameNumber):
 	return pastRowsToGetAverageFor
 
 
-def getRawStats():
+def getRawStatsFromTextFile(teamInitial):
 
-	fileName = '../rawGameStatsAndInfo/' + str(YEAR) + '/ATL-' + str(YEAR) + '.txt'
+	fileName = '../rawGameStatsAndInfo/' + str(YEAR) + '/' + teamInitial + '-' + str(YEAR) + '.txt'
 	f = open(fileName)
 
 	rawStatList = []
@@ -106,18 +142,26 @@ def getRawStats():
 	return rawStatList
 
 
-def getListOfStats():
+# Note 1: Charlotte is CHA when year <= 2014, and CHO otherwise
+# Note 2: New Orleans is NOH when year <= 2013, and NOP otherwise
+def getListOfTeamInitials():
 
-	listOfStats = []
-	fileName = '../rawGameStatsAndInfo/glossary.txt'
-	f = open(fileName)
+	listOfTeamInitials = []
+	f = open("../rawGameStatsAndInfo/teamInitials.txt", 'r')
 	for line in f:
-		statName = line.strip('\n')
-		listOfStats.append(statName)
+		teamInitial = line.strip('\n')
+		if teamInitial == 'CHO':
+			if YEAR <= 2014:
+				teamInitial = 'CHA'
+
+		elif teamInitial == 'NOP':
+			if YEAR <= 2013:
+				teamInitial = 'NOH'
+
+		listOfTeamInitials.append(teamInitial)
 
 	f.close()
-
-	return listOfStats
+	return listOfTeamInitials
 
 
 main()
