@@ -1,11 +1,11 @@
 
-YEAR = 2015
+YEAR = 2013
 
 def main():
 
 	teamInitials = getListOfTeamInitials()
 
-	for teamInitial in teamInitials[0:1]: 
+	for teamInitial in teamInitials: 
 
 		#Get the current teams raw stats from the text file generaged by scrapeAndSaveStats.py
 		rawStats = getRawStatsFromTextFile(teamInitial)
@@ -17,13 +17,11 @@ def main():
 
 def saveAveragedStats(team, numberOfGamesToGetAverageFor, completeAveragedStats):
 
-	fileName = team + "-" + str(numberOfGamesToGetAverageFor) + "-GameAverage"
-	print fileName
-	return 
+	filePath = str(YEAR) + "/"
+	fileName = filePath + team + "/" + team + "-" + str(numberOfGamesToGetAverageFor) + "-GameAverage.txt"
 
-	filePath
 	f = open(fileName, 'w')
-	for row in formattedGameRows:
+	for row in completeAveragedStats:
 		formattedRow = ""
 		for stat in row:
 			formattedRow += str(stat) + ", "
