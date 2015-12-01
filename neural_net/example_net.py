@@ -5,8 +5,6 @@ from pybrain.datasets import SupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 
-# Multiple output neural network --> http://stackoverflow.com/questions/8439194/multiple-output-neural-network
-
 def main():
 
 	start_time = time.time()
