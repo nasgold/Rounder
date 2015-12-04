@@ -1,4 +1,5 @@
 
+#Note: we use the year to read from our text files. This means 2015 is the year player during 2014/2015
 YEAR = 2013
 
 def main():
@@ -11,7 +12,8 @@ def main():
 		rawStats = getRawStatsFromTextFile(teamInitial)
 
 		for numberOfGamesToGetAverageFor in range(1,21):
-			completeAveragedStats = calculateGameAverages(numberOfGamesToGetAverageFor, rawStats)
+			accumulativeGameStats = accumulateStats(numberOfGamesToGetAverageFor, rawStats)			
+			completeAveragedStats = averageAccumulativeGameStats(accumulativeGameStats, numberOfGamesToGetAverageFor)
 			saveAveragedStats(teamInitial, numberOfGamesToGetAverageFor, completeAveragedStats)
 
 
@@ -32,21 +34,42 @@ def saveAveragedStats(team, numberOfGamesToGetAverageFor, completeAveragedStats)
 
 	f.close()
 
-def calculateGameAverages(numberOfGamesToGetAverageFor, rawStats):
+def averageAccumulativeGameStats(accumulativeGameStats, numberOfGamesToGetAverageFor):
 
-	completeAveragedStats = []
+	averagedStats = []
+	for row in accumulativeGameStats:
+		gameAveragedStats = []
+
+		# Directly append the stats that can't be averaged (e.g. opponent, date, resutls, gambling lines, etc.)
+		for stat in row[:10]:
+			gameAveragedStats.append(stat)
+
+		# Loop through and average the rest of the stats
+		for stat in row[10:]:
+			stat = stat / float(numberOfGamesToGetAverageFor)
+			stat = int((stat * 100) + 0.5) / 100.0 # Adding 0.5 rounds it up. Only get 2 digits after the decimal
+			gameAveragedStats.append(stat)
+
+		averagedStats.append(gameAveragedStats)
+
+	return averagedStats
+
+
+def accumulateStats(numberOfGamesToGetAverageFor, rawStats):
+
+	accumulativeGameStats = []
 	for gameNumber in range(numberOfGamesToGetAverageFor, len(rawStats)):
 		currentRow = rawStats[gameNumber]
 		rowInfo = getRowInfo(currentRow)
 
 		pastRowsToGetAverageFor = getPastRowsToAverage(numberOfGamesToGetAverageFor, rawStats, gameNumber)
 
-		averagedPastStats = averagePastRows(pastRowsToGetAverageFor)
-		finalAverageRows = rowInfo + averagedPastStats
+		accumulatedPastStats = accumulatePastRows(pastRowsToGetAverageFor)
+		finalAccumulatedGameRows = rowInfo + accumulatedPastStats
 
-		completeAveragedStats.append(finalAverageRows)
+		accumulativeGameStats.append(finalAccumulatedGameRows)
 
-	return completeAveragedStats
+	return accumulativeGameStats
 
 def getRowInfo(currentRow):
 	# Row info are the stats we won't average (see getIndexesNotToGetTheAverageFor to these stats)
@@ -62,7 +85,7 @@ def getRowInfo(currentRow):
 	return infoStats
 
 
-def averagePastRows(pastRowsToGetAverageFor):
+def accumulatePastRows(pastRowsToGetAverageFor):
 
 	statIndexesNotToAverage = getIndexesNotToGetTheAverageFor()
 	
@@ -88,6 +111,12 @@ def averagePastRows(pastRowsToGetAverageFor):
 
 def averageSummedPastLists(numberOfRows, summedPastStats):
 
+	# summedPastStats is a dictionary of the following form...
+	# key: stat index.
+	# value: the value of each stat (with that index) for each row in pastRowsToGetAverageFor
+
+	#We are looping over summedPastStats and appending an int(key), which effectively 
+	#allows us to sort the dictionary by stat order when we keyList.sort()
 	keyList = []
 	for key in summedPastStats:
 		keyList.append(int(key))
