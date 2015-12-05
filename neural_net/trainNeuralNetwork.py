@@ -8,10 +8,16 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.customxml import NetworkWriter
 from pybrain.tools.customxml import NetworkReader
 
+from getInputsForNeuralNetworks import *
+
 
 def main():
 
 	start_time = time.time()
+
+	print createTheDataModel([1,2,3])
+	return
+
 
 	dataModel = [
 	    [(0,0,0), (1,0,0,0,0,0,0,0)],
