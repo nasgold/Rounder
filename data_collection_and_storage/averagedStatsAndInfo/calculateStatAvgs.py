@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../..") # Adds higher directory to python modules path.
+from constants import *
 
 #Note: we use the year to read from our text files. This means 2015 is the year player during 2014/2015
 YEAR = 2013
@@ -41,11 +44,11 @@ def averageAccumulativeGameStats(accumulativeGameStats, numberOfGamesToGetAverag
 		gameAveragedStats = []
 
 		# Directly append the stats that can't be averaged (e.g. opponent, date, resutls, gambling lines, etc.)
-		for stat in row[:10]:
+		for stat in row[:NUMBER_OF_BASIC_STATS_NOT_TO_AVERAGE]:
 			gameAveragedStats.append(stat)
 
 		# Loop through and average the rest of the stats
-		for stat in row[10:]:
+		for stat in row[NUMBER_OF_BASIC_STATS_NOT_TO_AVERAGE:]:
 			stat = stat / float(numberOfGamesToGetAverageFor)
 			stat = int((stat * 100) + 0.5) / 100.0 # Adding 0.5 rounds it up. Only get 2 digits after the decimal
 			gameAveragedStats.append(stat)
