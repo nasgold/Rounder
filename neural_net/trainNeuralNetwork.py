@@ -35,7 +35,7 @@ def main():
 	trainer.trainUntilConvergence(verbose=True,
 	                              trainingData=trainingSet,
 	                              validationData=ds,
-	                              maxEpochs=100)
+	                              maxEpochs=4000)
 
 	NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet.xml')
 
