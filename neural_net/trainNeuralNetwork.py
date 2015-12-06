@@ -15,43 +15,30 @@ def main():
 
 	start_time = time.time()
 
-	print createTheDataModel([1,2,3])
-	return
+	ds = SupervisedDataSet(172, 1)
 
-
-	dataModel = [
-	    [(0,0,0), (1,0,0,0,0,0,0,0)],
-	    [(0,0,1), (0,1,0,0,0,0,0,0)],
-	    [(0,1,0), (0,0,1,0,0,0,0,0)],
-	    [(0,1,1), (0,0,0,1,0,0,0,0)],
-	    [(1,0,0), (0,0,0,0,1,0,0,0)],
-	    [(1,0,1), (0,0,0,0,0,1,0,0)],
-	    [(1,1,0), (0,0,0,0,0,0,1,0)],
-	    [(1,1,1), (0,0,0,0,0,0,0,1)],
-	]
-
-	ds = SupervisedDataSet(3, 8)
-	 
+	dataModel = createTheDataModel([3,9,18]) 
 	for input, target in dataModel:
 	    ds.addSample(input, target)
 
-	# create a large random data set
-	random.seed()
-	trainingSet = SupervisedDataSet(3, 8);
-	for ri in range(0,2000):
-	    input,target = dataModel[random.getrandbits(3)];
-	    trainingSet.addSample(input, target)
+	# create the data set
+	trainingSet = SupervisedDataSet(172, 1);
+	for row in dataModel:
+		inputs = row[0]
+		target = row[1]
+		trainingSet.addSample(input, target)
 
-	net = buildNetwork(3, 8, 8, bias=True)
+	net = buildNetwork(172, 150, 1, bias=True)
 
 	trainer = BackpropTrainer(net, ds, learningrate = 0.001)
 
 	trainer.trainUntilConvergence(verbose=True,
 	                              trainingData=trainingSet,
 	                              validationData=ds,
-	                              maxEpochs=20)
+	                              maxEpochs=100)
 
 	NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet.xml')
+
 
 	print("The Program took %s seconds to run" % (time.time() - start_time))
 
