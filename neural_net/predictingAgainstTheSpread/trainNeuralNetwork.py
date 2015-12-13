@@ -20,31 +20,19 @@ def main():
 
 	start_time = time.time()
 
-	ds = SupervisedDataSet(228, 1)
-
 	dataModel = createTheDataModel([2,5,9,15])
 
+	trainingSet = SupervisedDataSet(228, 1)
 	for input, target in dataModel:
-	    ds.addSample(input, target)
+	    trainingSet.addSample(input, target)
 
-	# create the data set
-	trainingSet = SupervisedDataSet(228, 1);
-	for row in dataModel:
-		inputs = row[0]
-		target = row[1]
-		trainingSet.addSample(input, target)
 
 	net = buildNetwork(228, 220, 1, bias=True)
 
-	trainer = BackpropTrainer(net, ds, learningrate = 0.001)
-
-	numberOfEpochsToTrainFor = 200
-	for epochNumber in range(1, 11):
-
-		trainer.trainUntilConvergence(verbose=True,
-		                              trainingData=trainingSet,
-		                              validationData=ds,
-		                              maxEpochs=numberOfEpochsToTrainFor)
+	numberOfEpochsToTrainFor = 2
+	for epochNumber in range(1, 3):
+		trainer = BackpropTrainer(net, trainingSet)
+		trainer.trainEpochs(2)
 
 		NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet1-epoch' + str(epochNumber * numberOfEpochsToTrainFor) + '.xml')
 

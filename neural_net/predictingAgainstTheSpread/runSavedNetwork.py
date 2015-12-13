@@ -13,9 +13,11 @@ from getInputsForNeuralNetworks import *
 
 def main():
 
-	for i in range(2,11):
+	for i in range(1,3):
 		epochs = i *2
-		savedNet = 'savedNeuralNets/trainedNet1-epoch' + str(epochs) + '.xml'
+		print epochs
+
+		savedNet = './savedNeuralNets/trainedNet1-epoch' + str(epochs) + '.xml'
 		runNeuralNets(savedNet)
 
 def runNeuralNets(savedNet):
@@ -33,13 +35,10 @@ def runNeuralNets(savedNet):
 	    if len(i) != 228:
 	    	continue
 
-	    totalGames += 1
 
+	    totalGames += 1
 	    result = net.activate(i)[0]
 
-	    #print result, target[0]
-	    #print result
-	    
 	    if result > 0:
 	    	result = 1
 	    else:
@@ -52,13 +51,12 @@ def runNeuralNets(savedNet):
 
 	    totalGamesPredicted += 1
 
-
 	    if result == target[0]:
 	    	correct += 1
 	    else:
 	    	incorrect += 1
 
-
+	
 	print 'correct: ' + str(correct) + " (" + str(100.0 * correct/totalGamesPredicted)[0:6] + "%)"
 	print 'incorrect: ' + str(incorrect) + " (" + str(100.0 * incorrect/totalGamesPredicted)[0:6] + "%)"
 	print 'totalGames: ', totalGames

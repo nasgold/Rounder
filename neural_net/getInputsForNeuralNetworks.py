@@ -2,6 +2,8 @@ import sys
 sys.path.append("..") # Adds higher directory to python modules path.
 from constants import *
 
+from random import random
+
 def createTheDataModel(averagesToGet):
 	if len(averagesToGet) == 0:
 		return None
