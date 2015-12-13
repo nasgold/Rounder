@@ -9,7 +9,7 @@ def createTheDataModel(averagesToGet):
 	averagesToGet.sort(reverse=True)
 
 	theDataModel = []
-	for YEAR in [2015]:
+	for YEAR in [2013, 2014]:
 
 		teamInitials = getListOfTeamInitials(YEAR)
 		for teamInitial in teamInitials:
@@ -30,7 +30,7 @@ def seperateInputsFromOutputs(row):
 	else:
 		homeOrAway = 0
 
-	output = row[INDEX_OF_NEURAL_NETWORK_RESULT_STRAIGHT_UP]
+	output = row[INDEX_OF_NEURAL_NETWORK_RESULT_AGAINST_THE_SPREAD]
 	if output == 'W':
 		output = [1]
 	else:
@@ -103,7 +103,7 @@ def getStatsFromFile(fileName):
 
 def getFileName(averageToGet, teamInitial, YEAR):
 
-	fileName = '../format_data_for_neural_nets/' + str(YEAR) + '/' + teamInitial + '/'
+	fileName = '../../format_data_for_neural_nets/' + str(YEAR) + '/' + teamInitial + '/'
 	fileName += teamInitial + '-Combined-' + str(averageToGet) + '-GameAverages.txt'
 	return fileName
 
@@ -113,7 +113,7 @@ def getFileName(averageToGet, teamInitial, YEAR):
 def getListOfTeamInitials(YEAR):
 
 	listOfTeamInitials = []
-	f = open("../data_collection_and_storage/rawGameStatsAndInfo/teamInitials.txt", 'r')
+	f = open("../../data_collection_and_storage/rawGameStatsAndInfo/teamInitials.txt", 'r')
 	for line in f:
 		teamInitial = line.strip('\n')
 		if teamInitial == 'CHO':
@@ -131,4 +131,4 @@ def getListOfTeamInitials(YEAR):
 
 
 averagesToGet = [3,9,18]
-createTheDataModel(averagesToGet)
+#createTheDataModel(averagesToGet)

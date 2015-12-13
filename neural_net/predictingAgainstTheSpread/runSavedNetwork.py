@@ -1,3 +1,7 @@
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
+sys.path.append("../..") # Adds higher directory to python modules path.
+
 import random
 import time
 
@@ -9,8 +13,15 @@ from getInputsForNeuralNetworks import *
 
 def main():
 
-	net =  NetworkReader.readFrom('savedNeuralNets/trainedNet.xml')
-	dataModel = createTheDataModel([3,9,18])
+	for i in range(2,11):
+		epochs = i *2
+		savedNet = 'savedNeuralNets/trainedNet1-epoch' + str(epochs) + '.xml'
+		runNeuralNets(savedNet)
+
+def runNeuralNets(savedNet):
+
+	net =  NetworkReader.readFrom(savedNet)
+	dataModel = createTheDataModel([2,5,9,15])
 
 	totalGamesPredicted = 0
 	totalGames = 0
@@ -19,20 +30,25 @@ def main():
 	for input, target in dataModel:
 
 	    i = list(input)
-	    if len(i) != 172:
+	    if len(i) != 228:
 	    	continue
 
 	    totalGames += 1
 
 	    result = net.activate(i)[0]
+
 	    #print result, target[0]
 	    #print result
-	    if result > 2.1:
+	    
+	    if result > 0:
 	    	result = 1
-	    elif result < -3.2:
-	    	result = 0
 	    else:
-	    	continue
+	    	result = 0
+
+	    # elif result < -3.2:
+	    # 	result = 0
+	    # else:
+	    # 	continue
 
 	    totalGamesPredicted += 1
 
@@ -48,7 +64,7 @@ def main():
 	print 'totalGames: ', totalGames
 	print 'totalGamesPredicted: ', totalGamesPredicted
 
-
+	print
 
 	return 
 

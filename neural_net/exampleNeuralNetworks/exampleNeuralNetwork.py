@@ -39,13 +39,14 @@ def main():
 	net = buildNetwork(3, 8, 8, bias=True)
 
 	trainer = BackpropTrainer(net, ds, learningrate = 0.001)
+	for i in range(10):
 
-	trainer.trainUntilConvergence(verbose=True,
-	                              trainingData=trainingSet,
-	                              validationData=ds,
-	                              maxEpochs=20)
+		trainer.trainUntilConvergence(verbose=True,
+		                              trainingData=trainingSet,
+		                              validationData=ds,
+		                              maxEpochs=1)
 
-	NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet.xml')
+		NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet'+str(i)+'.xml')
 
 	print("The Program took %s seconds to run" % (time.time() - start_time))
 
