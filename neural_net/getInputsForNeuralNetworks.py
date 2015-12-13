@@ -9,7 +9,7 @@ def createTheDataModel(averagesToGet):
 	averagesToGet.sort(reverse=True)
 
 	theDataModel = []
-	for YEAR in [2013, 2014]:
+	for YEAR in [2015]:
 
 		teamInitials = getListOfTeamInitials(YEAR)
 		for teamInitial in teamInitials:
@@ -47,7 +47,6 @@ def makeAllInputsNumbers(inputs):
 
 	for i in range(len(inputs)):
 		inputs[i] = float(inputs[i])
-
 
 
 def combineAllAveragesIntoRowsBasedOnDates(averagesToGet, allAveragedRows):

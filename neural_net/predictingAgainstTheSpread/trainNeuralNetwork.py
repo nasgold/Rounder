@@ -35,11 +35,12 @@ def main():
 	trainer.trainUntilConvergence(verbose=True,
 	                              trainingData=trainingSet,
 	                              validationData=ds,
-	                              maxEpochs=4000)
+	                              maxEpochs=1)
 
-	NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet.xml')
+	NetworkWriter.writeToFile(net, 'savedNeuralNets/trainedNet7.xml')
 
+	seconds = str(int(time.time() - start_time))
+	print("The Program took %s seconds to run" % (seconds))
 
-	print("The Program took %s seconds to run" % (time.time() - start_time))
 
 main()
